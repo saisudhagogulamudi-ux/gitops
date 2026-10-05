@@ -1,0 +1,43 @@
+name: "Terraform GitOps Pipeline"
+
+# Trigger workflow on Pull Requests and Merges to main
+on:
+  pull_request:
+    branches:
+      - branch1
+  push:
+    branches:
+      - branch1
+
+jobs:
+  terraform:
+    name: "Terraform Pipeline"
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: "us-east-1"
+
+    steps:
+      # Step 1: Pull code from Git
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Install Terraform CLI on GitHub's runner
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Step 3: Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 4: Run Plan on Pull Request
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan
+
+      # Step 5: Run Apply ONLY when code is merged to main
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
