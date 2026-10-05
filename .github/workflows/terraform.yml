@@ -39,5 +39,5 @@ jobs:
 
       # Step 5: Run Apply ONLY when code is merged to main
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/branch1' && github.event_name == 'push'
         run: terraform apply -auto-approve
